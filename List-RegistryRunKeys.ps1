@@ -102,6 +102,7 @@ $results = @{
   host = $HostName
   action = "list_registry_run_keys"
   run_key_entries = $entries
+  copilot_soar = $true
 }
 
 try {
