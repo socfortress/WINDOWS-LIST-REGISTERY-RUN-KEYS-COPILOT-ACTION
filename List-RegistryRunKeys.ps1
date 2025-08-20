@@ -102,7 +102,7 @@ $results = @{
   host = $HostName
   action = "list_registry_run_keys"
   run_key_entries = $entries
-  copilot_soar = $true
+  copilot_action = $true
 }
 
 try {
@@ -114,3 +114,4 @@ try {
 
 $dur = [int]((Get-Date) - $runStart).TotalSeconds
 Write-Log "=== SCRIPT END : duration ${dur}s ==="
+
