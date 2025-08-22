@@ -1,5 +1,5 @@
 {
-  "active_response_name": "WINDOWS-LIST-REGISTRY-RUN-KEYS-ACTIVERESPONSE",
+  "copilot_action_name": "WINDOWS-LIST-REGISTRY-RUN-KEYS-ACTIVERESPONSE",
   "description": "Enumerates autoruns from HKLM/HKCU Run & RunOnce (incl. WOW6432Node), extracts executable paths, and records signer status (signed/valid, Microsoft-trusted). Outputs NDJSON (summary + one line per entry) and writes atomically to the Active Response log with .new fallback.",
   "technology": "Windows",
   "icon": "windows",
