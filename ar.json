@@ -1,0 +1,26 @@
+{
+  "active_response_name": "WINDOWS-LIST-REGISTRY-RUN-KEYS-ACTIVERESPONSE",
+  "description": "Enumerates autoruns from HKLM/HKCU Run & RunOnce (incl. WOW6432Node), extracts executable paths, and records signer status (signed/valid, Microsoft-trusted). Outputs NDJSON (summary + one line per entry) and writes atomically to the Active Response log with .new fallback.",
+  "technology": "Windows",
+  "icon": "windows",
+  "script_parameters": [
+    {
+      "name": "LogPath",
+      "type": "string",
+      "required": false,
+      "description": "Path to the rotating human-readable script log.",
+      "default": "%TEMP%/ListRegistryRunKeys-script.log"
+    },
+    {
+      "name": "ARLog",
+      "type": "string",
+      "required": false,
+      "description": "Active Response NDJSON output path (atomic overwrite; falls back to .new if locked).",
+      "default": "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
+    }
+  ],
+  "repo_url": "https://github.com/socfortress/WINDOWS-LIST-REGISTERY-RUN-KEYS-ACTIVERESPONSE",
+  "script_name": "List-RegistryRunKeys.ps1",
+  "version": "1.0.0",
+  "last_updated": "2025-08-22T00:00:00Z"
+}
