@@ -1,13 +1,13 @@
 [CmdletBinding()]
 param(
   [string]$LogPath = "$env:TEMP\ListRegistryRunKeys-script.log",
-  [string]$ARLog = 'C:\Program Files (x86)\ossec-agent\active-response\active-responses.log'
+  [string]$ARLog   = 'C:\Program Files (x86)\ossec-agent\active-response\active-responses.log'
 )
 
 $ErrorActionPreference = 'Stop'
 $HostName = $env:COMPUTERNAME
 $LogMaxKB = 100
-$LogKeep = 5
+$LogKeep  = 5
 $runStart = Get-Date
 
 function Write-Log {
@@ -51,17 +51,6 @@ function Check-Signature {
 }
 
 Rotate-Log
-
-try {
-  if (Test-Path $ARLog) {
-    Remove-Item -Path $ARLog -Force -ErrorAction Stop
-  }
-  New-Item -Path $ARLog -ItemType File -Force | Out-Null
-  Write-Log "Active response log cleared for fresh run."
-} catch {
-  Write-Log "Failed to clear ${ARLog}: $($_.Exception.Message)" 'WARN'
-}
-
 Write-Log "=== SCRIPT START : List Registry Run Keys ==="
 
 $keysToCheck = @(
@@ -80,14 +69,17 @@ foreach ($key in $keysToCheck) {
       $vals = Get-ItemProperty -Path $key
       foreach ($name in $vals.PSObject.Properties.Name | Where-Object { $_ -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }) {
         $rawPath = $vals.$name
-        $exe = ($rawPath -replace '^[^"]*"?([^"]+\.exe).*$', '$1')
+        if (-not $rawPath) { continue }
+        # Try to extract the executable path (handles quoted and unquoted)
+        $exe = $rawPath
+        if ($exe -match '^\s*"(.*?)"') { $exe = $Matches[1] } else { $exe = ($exe -split '\s+')[0] }
         $sigInfo = Check-Signature -Path $exe
         $entries += [PSCustomObject]@{
-          registry_key = $key
-          value_name = $name
-          command = $rawPath
-          executable = $exe
-          signed = $sigInfo.signed
+          registry_key      = $key
+          value_name        = $name
+          command           = $rawPath
+          executable        = $exe
+          signed            = $sigInfo.signed
           trusted_microsoft = $sigInfo.trusted
         }
       }
@@ -97,21 +89,45 @@ foreach ($key in $keysToCheck) {
   }
 }
 
-$results = @{
-  timestamp = (Get-Date).ToString('o')
-  host = $HostName
-  action = "list_registry_run_keys"
-  run_key_entries = $entries
+# Build NDJSON: summary + one line per entry
+$timestamp = (Get-Date).ToString('o')
+$lines = @()
+
+$lines += ([pscustomobject]@{
+  timestamp      = $timestamp
+  host           = $HostName
+  action         = "list_registry_run_keys_summary"
+  entry_count    = $entries.Count
   copilot_action = $true
+} | ConvertTo-Json -Compress -Depth 3)
+
+foreach ($e in $entries) {
+  $lines += ([pscustomobject]@{
+    timestamp         = $timestamp
+    host              = $HostName
+    action            = "list_registry_run_keys"
+    registry_key      = $e.registry_key
+    value_name        = $e.value_name
+    command           = $e.command
+    executable        = $e.executable
+    signed            = $e.signed
+    trusted_microsoft = $e.trusted_microsoft
+    copilot_action    = $true
+  } | ConvertTo-Json -Compress -Depth 4)
 }
 
+$ndjson  = [string]::Join("`n", $lines)
+$tempFile = "$env:TEMP\arlog.tmp"
+Set-Content -Path $tempFile -Value $ndjson -Encoding ascii -Force
+
+$recordCount = $lines.Count
 try {
-  $results | ConvertTo-Json -Compress | Out-File -FilePath $ARLog -Encoding ascii -Width 2000
-  Write-Log "Registry Run keys JSON logged to $ARLog" 'INFO'
+  Move-Item -Path $tempFile -Destination $ARLog -Force
+  Write-Log "Wrote $recordCount NDJSON record(s) to $ARLog" 'INFO'
 } catch {
-  Write-Log $_.Exception.Message 'ERROR'
+  Move-Item -Path $tempFile -Destination "$ARLog.new" -Force
+  Write-Log "ARLog locked; wrote to $($ARLog).new" 'WARN'
 }
 
 $dur = [int]((Get-Date) - $runStart).TotalSeconds
 Write-Log "=== SCRIPT END : duration ${dur}s ==="
-
