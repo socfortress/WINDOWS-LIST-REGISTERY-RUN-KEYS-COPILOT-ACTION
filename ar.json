@@ -1,26 +1,10 @@
 {
-  "copilot_action_name": "WINDOWS-LIST-REGISTERY-RUN-KEYS-COPILOT-ACTION",
-  "description": "Enumerates autoruns from HKLM/HKCU Run & RunOnce (incl. WOW6432Node), extracts executable paths, and records signer status (signed/valid, Microsoft-trusted). Outputs NDJSON (summary + one line per entry) and writes atomically to the Active Response log with .new fallback.",
+  "copilot_action_name": "WINDOWS-LIST-REGISTRY-RUN-KEYS-COPILOT-ACTION",
+  "description": "Enumerates autoruns from HKLM/HKCU Run and RunOnce (including WOW6432Node), extracts executable paths, and records signature status (validly signed and whether signed by Microsoft). Emits structured NDJSON with a summary and one record per entry.",
   "technology": "Windows",
   "icon": "windows",
-  "script_parameters": [
-    {
-      "name": "LogPath",
-      "type": "string",
-      "required": false,
-      "description": "Path to the rotating human-readable script log.",
-      "default": "%TEMP%/ListRegistryRunKeys-script.log"
-    },
-    {
-      "name": "ARLog",
-      "type": "string",
-      "required": false,
-      "description": "Active Response NDJSON output path (atomic overwrite; falls back to .new if locked).",
-      "default": "C:\\Program Files (x86)\\ossec-agent\\active-response\\active-responses.log"
-    }
-  ],
-  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-LIST-REGISTERY-RUN-KEYS-COPILOT-ACTION/refs/heads/main",
+  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-LIST-REGISTRY-RUN-KEYS-COPILOT-ACTION/refs/heads/main/List-RegistryRunKeys.ps1",
   "script_name": "List-RegistryRunKeys.ps1",
   "version": "1.0.0",
-  "last_updated": "2025-08-22T00:00:00Z"
+  "last_updated": "2025-09-09T00:00:00Z"
 }
