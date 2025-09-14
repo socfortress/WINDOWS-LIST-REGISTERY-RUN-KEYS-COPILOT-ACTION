@@ -3,7 +3,7 @@
   "description": "Enumerates autoruns from HKLM/HKCU Run and RunOnce (including WOW6432Node), extracts executable paths, and records signature status (validly signed and whether signed by Microsoft). Emits structured NDJSON with a summary and one record per entry.",
   "technology": "Windows",
   "icon": "windows",
-  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-LIST-REGISTRY-RUN-KEYS-COPILOT-ACTION/refs/heads/main/List-RegistryRunKeys.ps1",
+  "repo_url": "https://raw.githubusercontent.com/socfortress/WINDOWS-LIST-REGISTERY-RUN-KEYS-COPILOT-ACTION/refs/heads/main/List-RegistryRunKeys.ps1",
   "script_name": "List-RegistryRunKeys.ps1",
   "version": "1.0.0",
   "last_updated": "2025-09-09T00:00:00Z"
